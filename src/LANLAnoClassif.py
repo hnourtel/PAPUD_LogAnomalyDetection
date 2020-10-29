@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from src.network.LANLWordModel import LANLWordModel
+from src.model.LANLWordModel import LANLWordModel
 from src.tools.ModelSave import ModelSave
 from src.tools.Paths import Paths
 from src.tools.ProgramArguments import ProgramArguments

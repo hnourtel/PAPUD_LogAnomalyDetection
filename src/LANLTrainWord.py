@@ -13,27 +13,12 @@ from src.tools.Timer import Timer
 from src.tools.line.LinesTools import LinesTools
 from src.tools.metrics.Accuracy import Accuracy
 
-# Drive execution with stops after the end of a process
-# Note that order of the next bool is important. Program stops after first True bool encountered.
-# You can't run a part, skip another one and run the last.
-stopAfterVocCreation = False
+def LANLTrainWord(corpusName, pathAllData, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, devCalculStep, learningRate, epochNumber):
 
-
-def LANLTrainWord():
-
-    # Pour debug sur la CG
+    # Uncomment to simplify debugging on graphic card
     #os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
-    # Parsing command lines option
-    parser = argparse.ArgumentParser()
-    parser.add_argument("corpus_name", choices={"LANL"},help="Accept LANL")
-    parser.add_argument("path_data", help="Path to data directory.")
-    args = parser.parse_args()
-
-    # Calculte all data that depend on input arguments
-    corpusName = args.corpus_name
-    pathAllData = args.path_data
-
+    # Calculate path of input and output data
     paths = Paths(pathAllData, corpusName)
 
     #Set logging level
@@ -45,6 +30,7 @@ def LANLTrainWord():
 
     useVocabularyCache = True
     forceRefreshVocabularyCache = False
+    stopAfterVocCreation = False
 
     loadVocabularyTimer = Timer()
     loadVocabularyTimer.start()
@@ -52,7 +38,7 @@ def LANLTrainWord():
     loadVocabularyTimer.stop()
     print("Vocabulary loading time : " + str(loadVocabularyTimer.totalElapsedTime) + " seconds")
 
-    # Stop program if demanded
+    # Stop program there if you want to only create the vocabulary
     if stopAfterVocCreation:
         print("Request program stop after vocabulary creation")
         exit()
@@ -80,13 +66,7 @@ def LANLTrainWord():
 
     # Run parameters
     # Batch parameters for corpus that need them
-    desiredBatchSize = 64
-    desiredLinesPerBatch = 1
-    slidingWindowRenewRate = 0
 
-    devCalculStep = 200
-    learningRate = 0.0001
-    epochNumber = 4
     # For contextSize and embeddingDim see model arguments
 
     # Construct the DL model
@@ -287,12 +267,28 @@ def LANLTrainWord():
     print("  - Dev : " + str(devTime.totalElapsedTime))
     print("  - Save : " + str(saveModelTime.totalElapsedTime))
 
+    return modelSaving.lastFileSave
 
 
 if __name__ == "__main__":
     print("Beginning of program")
     # execute only if run as a script
     try:
-        LANLTrainWord()
+        desiredBatchSize = 64
+        desiredLinesPerBatch = 1
+        slidingWindowRenewRate = 0
+
+        devCalculStep = 200
+        learningRate = 0.0001
+        epochNumber = 1
+
+        # Parsing command lines option
+        parser = argparse.ArgumentParser()
+        parser.add_argument("corpus_name", choices={"LANL"}, help="Accept LANL")
+        parser.add_argument("path_data", help="Path to data directory.")
+        args = parser.parse_args()
+
+        savePath = LANLTrainWord(args.corpus_name, args.path_data, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, devCalculStep, learningRate, epochNumber)
+
     finally:
         print("=============== End of program ===============")

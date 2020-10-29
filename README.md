@@ -15,12 +15,13 @@ git clone https://github.com/hnourtel/PAPUD_LogAnomalyDetection.git
 ```
 
 ## Getting started
-
+File tree structure
+Lauching script
 
 ## Contact
-If you would like to get in touch on this subject, contact hubert.nourtel@gmail.com or cerisara@loria.fr 
+If you would like to get in touch on this subject, contact `hubert.nourtel@gmail.com` or `cerisara@loria.fr` 
 
-## Copyrigth
+## Copyright
 Copyright LORIA, Hubert Nourtel, Christophe Cerisara, Samuel Cruz-Lara
 
    Licensed under the Apache License, Version 2.0 (the "License");

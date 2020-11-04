@@ -20,14 +20,9 @@ from src.tools.Timer import Timer
 from src.tools.line.LinesTools import LinesTools
 
 
-def testAnomalyClassification(progArg, testFilePath=""):
+def testAnomalyClassification(corpusName, pathAllData, anoClassModelFilename, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, redteamFilePath, testFilePath=""):
 
-    #  Calculate all data that depend on input arguments
-    cudaDevice = progArg.cudaDevice
-    corpusName = progArg.corpusName
-    pathAllData = progArg.pathData
-    modelFileName = progArg.modelFile
-
+    # Retrieving paths
     paths = Paths(pathAllData, corpusName)
 
     # Set logging level
@@ -50,7 +45,7 @@ def testAnomalyClassification(progArg, testFilePath=""):
     torch.set_printoptions(precision=6)
     if torch.cuda.is_available():
         print("Testing anomaly classification on GPU")
-        device = torch.device("cuda:" + cudaDevice)
+        device = torch.device("cuda")
         cudaOK = True
     else:
         print("Testing anomaly classification on CPU")
@@ -58,12 +53,8 @@ def testAnomalyClassification(progArg, testFilePath=""):
         cudaOK = False
 
     #  Construct the DL model
-    desiredBatchSize = 128
-    desiredLinesPerBatch = 1
-    slidingWindowRenewRate = 1
-
     # Load dictionary with encoder, R and c
-    savedAnoClassWordModel = torch.load(paths.modelPath + modelFileName, map_location=device)
+    savedAnoClassWordModel = torch.load(paths.modelPath + anoClassModelFilename, map_location=device)
 
     wordModelList = []
     RList = []
@@ -85,8 +76,7 @@ def testAnomalyClassification(progArg, testFilePath=""):
     lossRepeat = 1000
 
     # Load a redteam file in a list to calculate true positive and false positive
-    redteamFile = open("/home_nfs/home_cerisarc/LANLData/redteamSplit/redteam_8", "r")
-    #redteamFile = open("/home/hubert/Documents/PAPUD/LANLData/redteamSplit/redteam_8", "r")
+    redteamFile = open(redteamFilePath, "r")
     redLineList = []
     for redLine in redteamFile:
         redLineList.append(re.sub('\n', '', redLine).lower())
@@ -191,28 +181,6 @@ def testAnomalyClassification(progArg, testFilePath=""):
     truePositive = 0
     falsePositive = 0
 
-
-    """
-    # Process each batch
-    for lineList, fileName, lineScore in outLineList:
-        batchOutEx = "New batch in anomaly\n"
-        batchOutEx += "Dist = " + str(lineScore) + "\n"
-        batchOutEx += "File = " + fileName + "\n"
-        batchOutEx += "Lines = \n" + lineList.lineListToStr("raw") + "\n"
-        batchOutEx += "===== End ====\n\n"
-        outputFileOutEx.write(batchOutEx)
-
-        # Check if at least one line of the batch is in redteam file
-        positive = False
-        for line in lineList:
-            lineExtract = line.ts + "," + line.sourceUser + "," + line.sourceComputer + "," + line.destComputer
-            if lineExtract in redLineList:
-                truePositive += 1
-                positive = True
-                break
-        if not positive:
-            falsePositive += 1
-    """
     outputFileOutEx.close()
 
     print(Counter(elem[1] for elem in scoresListMetrics))
@@ -222,10 +190,6 @@ def testAnomalyClassification(progArg, testFilePath=""):
     else:
         # Save graphs value on the disk
         torch.save(graphs, os.path.join(pathAllData, "graphValue.obj"))
-
-    #TODO : add AUC calculation
-
-
 
     print("End of anomaly classification")
     print("Total batch tested : " + str(totalBatchCount))
@@ -245,7 +209,19 @@ if __name__ == "__main__":
     try:
         # Parsing command lines option
         progArg = ProgramArguments(withModel=True)
-        testAnomalyClassification(progArg)
+
+        corpusName = progArg.corpusName
+        pathAllData = progArg.pathData
+        anoClassModelFilename = progArg.modelFile
+
+        desiredBatchSize = 128
+        desiredLinesPerBatch = 1
+        slidingWindowRenewRate = 1
+
+        redteamFilePath = "/home_nfs/home_cerisarc/LANLData/redteamSplit/redteam_8"
+        # redteamFilePath = "/home/hubert/Documents/PAPUD/LANLData/redteamSplit/redteam_8"
+
+        testAnomalyClassification(corpusName, pathAllData, anoClassModelFilename, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, redteamFilePath)
 
 
     finally:

@@ -4,7 +4,14 @@ This repository provides a tool detecting anomalies in logs.
 It was developed at LORIA in the context of ITEA3/PAPUD project.
 
 ## Tool presentation
+The tool aims to analyze system logs to detect log line outliers. These outliers are interpreted as anomalies in the logs,
+in the sense that the system does not function normally because it does not output classic logs. It can be used to detect
+cyber-attacks, software failures, hardware failures and all malfunctions of a system that have impact on the logs.
 
+It uses deep learning techniques for NLP to analyze the logs stored in a flat file. It consists of two parts :
+* A line encoder : a model is trained for each word of the line, it predicts the word given all other words as input
+* A one-class classifier : a DeepSVDD model is trained for each word, using encoder's output as input.
+All DeepSVDD scores are summed to determine total score for the line. 
 
 ## Installation
 This tool is written in `Python 3.7` and requires the packages listed in `requirements.txt`.

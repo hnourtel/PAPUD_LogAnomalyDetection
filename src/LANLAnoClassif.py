@@ -239,6 +239,8 @@ def LANLAnoClassif(corpusName, pathAllData, wordModelFilename, desiredBatchSize,
     # Save the objects on disk
     modelPathOnDisk = modelSaving.saveObject(modelsToSave)
 
+    return modelPathOnDisk
+
 if __name__ == "__main__":
     print("Beginning of program")
     # execute only if run as a script
@@ -249,7 +251,7 @@ if __name__ == "__main__":
         #  Calculate all data that depend on input arguments
         corpusName = progArg.corpusName
         pathAllData = progArg.pathData
-        seq2seqModelFilename = progArg.modelFile
+        encoderModelFilename = progArg.modelFile
 
         desiredBatchSize = 32
         desiredLinesPerBatch = 1
@@ -257,7 +259,7 @@ if __name__ == "__main__":
         nu = 0.005
         eps = 0.01
 
-        LANLAnoClassif(corpusName, pathAllData, seq2seqModelFilename, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, nu, eps)
+        LANLAnoClassif(corpusName, pathAllData, encoderModelFilename, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, nu, eps)
 
     finally:
         print("=============== End of program ===============")

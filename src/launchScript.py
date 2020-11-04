@@ -1,7 +1,9 @@
 # -*- coding: utf8 -*-
 
 import argparse
+import os
 import LANLTrainWord as WordModelScript
+import LANLAnoClassif as AnoClassifScript
 
 """
 Script example of the running pipeline of the anomaly detection in system logs tool
@@ -34,14 +36,22 @@ if __name__ == "__main__":
     learningRate = 0.0001
     epochNumber = 1
 
-    lastModelSavePath = WordModelScript.LANLTrainWord(corpusName, args.path_data, desiredBatchSize, desiredLinesPerBatch,
+    # Run training
+    encoderModelFilepath = WordModelScript.LANLTrainWord(corpusName, args.path_data, desiredBatchSize, desiredLinesPerBatch,
                                                       slidingWindowRenewRate, devCalculStep, learningRate, epochNumber)
 
     """
     Second part : training the the LANL anomaly classifier model
     This model is a DeepSVDD which classify a line in two class : "anomaly" or "no anomaly"
     """
+    desiredBatchSize = 32
+    desiredLinesPerBatch = 1
+    slidingWindowRenewRate = 0
+    nu = 0.005
+    eps = 0.01
 
+    anoClassModelPath = AnoClassifScript.LANLAnoClassif(corpusName, args.path_data, os.path.basename(encoderModelFilepath), desiredBatchSize, desiredLinesPerBatch,
+                   slidingWindowRenewRate, nu, eps)
 
     """
     Third part : testing the LANL anomaly classifier

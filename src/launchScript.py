@@ -62,7 +62,7 @@ if __name__ == "__main__":
     """
 
     # Retrieving redteam file location
-    redteamFilePath = args.path_data + "redteam_example"
+    redteamFilePath = os.path.join(args.path_data, "redteam_example")
 
     # Run testing. Parameters are the same than for training the anomaly classifier model
     AnoClassifTest.testAnomalyClassification(corpusName, args.path_data, os.path.basename(anoClassModelPath), desiredBatchSize, desiredLinesPerBatch,

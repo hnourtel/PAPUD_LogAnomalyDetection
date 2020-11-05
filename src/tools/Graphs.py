@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 from scipy.integrate import simps, trapz
 
-from model.tools.metrics.Fmeasure import Fmeasure
+from tools.metrics.Fmeasure import Fmeasure
 
 
 class Graphs:

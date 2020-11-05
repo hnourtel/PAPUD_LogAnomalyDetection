@@ -33,7 +33,7 @@ def testAnomalyClassification(corpusName, pathAllData, anoClassModelFilename, de
         testFilePath = paths.testPath
 
     # Decide if the graphs are drawn or if we save only values on the disk
-    drawGraph = False
+    drawGraph = True
 
     """ ==========================
              Process the lines 
@@ -218,7 +218,7 @@ if __name__ == "__main__":
         desiredLinesPerBatch = 1
         slidingWindowRenewRate = 1
 
-        redteamFilePath = pathAllData + "redteam_example"
+        redteamFilePath = os.path.join(pathAllData, "redteam_example")
 
         testAnomalyClassification(corpusName, pathAllData, anoClassModelFilename, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, redteamFilePath)
 

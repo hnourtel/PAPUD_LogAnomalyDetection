@@ -22,8 +22,37 @@ git clone https://github.com/hnourtel/PAPUD_LogAnomalyDetection.git
 ```
 
 ## Getting started
-File tree structure
-Lauching script
+The script `launchScript.py` provides an example of the pipeline execution of the tool.
+For the example, it uses the LANL Cybersecurity dataset (https://csr.lanl.gov/data/cyber1/).
+You need to download the `auth.txt` file and `redteam.txt` file to use example script.   
+### Directory tree structure
+The tool needs a specific data structure to work. Here is the example with LANL dataset.
+If you are using another dataset, juste replace LANL by your corpus name in the directory tree.
+You need to create the following tree whereever you want on your disk :
+
+LANL_Data  
+├── LANL_Corpus  
+│   &nbsp;&nbsp;&nbsp;&nbsp;├── train  
+│   &nbsp;&nbsp;&nbsp;&nbsp;├── dev  
+│   &nbsp;&nbsp;&nbsp;&nbsp;└── test  
+└─ LANL_Model  
+
+`LANL_Data` contains all data needed for execution :
+* Corpus data in LANL_Corpus
+* Trained models in LANL_Model
+* A file for saving vocabulary calculated during execution
+* redteam file for testing the anomaly detection model
+
+`train` directory contains training files with line extracted from `auth.txt` file  
+`dev` directory contains files used to control learning during training part  
+`test` directory contains files used to test the anomaly detection model  
+  
+### Running script
+The script `launchScript` needs only one parameter to run : the data directory path (here the path to `LANL_Data`).  
+Other parameters are directly sets in `launchScript.py` as the two different models need different parameter values.
+
+Run the script using the following command :
+`python3 launchScript.py /home/myFiles/LANL_Data`
 
 ## Contact
 If you would like to get in touch on this subject, contact `hubert.nourtel@gmail.com` or `cerisara@loria.fr` 

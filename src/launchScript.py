@@ -3,7 +3,8 @@
 import argparse
 import os
 import LANLTrainWord as WordModelScript
-import LANLAnoClassif as AnoClassifScript
+import LANLAnoClassifWord as AnoClassifScript
+import LANLTestAnoClassWord as AnoClassifTest
 
 """
 Script example of the running pipeline of the anomaly detection in system logs tool
@@ -29,12 +30,12 @@ if __name__ == "__main__":
     This model aims to predict a word in a log line with the other word given as the input
     """
     # Training parameters
-    desiredBatchSize = 64
-    desiredLinesPerBatch = 1
-    slidingWindowRenewRate = 0
-    devCalculStep = 200
-    learningRate = 0.0001
-    epochNumber = 1
+    desiredBatchSize = 64 # Number of minibatchs in one call of the model
+    desiredLinesPerBatch = 1 # Number of lines loaded in one minibatch
+    slidingWindowRenewRate = 0 # If 2 or more lines are selected, determine the window selection sliding between two minibatch
+    devCalculStep = 200 # Step for the forward pass on dev dataset
+    learningRate = 0.0001 # Learning rate for the model
+    epochNumber = 1 # Number of epochs pass on the training dataset
 
     # Run training
     encoderModelFilepath = WordModelScript.LANLTrainWord(corpusName, args.path_data, desiredBatchSize, desiredLinesPerBatch,
@@ -44,19 +45,27 @@ if __name__ == "__main__":
     Second part : training the the LANL anomaly classifier model
     This model is a DeepSVDD which classify a line in two class : "anomaly" or "no anomaly"
     """
+    #  Training parameters
     desiredBatchSize = 32
     desiredLinesPerBatch = 1
     slidingWindowRenewRate = 0
     nu = 0.005
     eps = 0.01
 
+    # Run training
     anoClassModelPath = AnoClassifScript.LANLAnoClassif(corpusName, args.path_data, os.path.basename(encoderModelFilepath), desiredBatchSize, desiredLinesPerBatch,
                    slidingWindowRenewRate, nu, eps)
 
     """
     Third part : testing the LANL anomaly classifier
-    This part test the classifier using redteam annotation in LANL dataset 
+    This part test the classifier using redteam annotation in LANL dataset to calculate metrics (true positives, false negatives, ...)
     """
 
+    # Retrieving redteam file location
+    redteamFilePath = args.path_data + "redteam_example"
+
+    # Run testing. Parameters are the same than for training the anomaly classifier model
+    AnoClassifTest.testAnomalyClassification(corpusName, args.path_data, os.path.basename(anoClassModelPath), desiredBatchSize, desiredLinesPerBatch,
+                              slidingWindowRenewRate, redteamFilePath)
 
     print("=============== End of program ===============")

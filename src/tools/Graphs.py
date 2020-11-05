@@ -1,8 +1,9 @@
 # -*- coding: utf8 -*-
 import matplotlib.pyplot as plt
 import torch
+from scipy.integrate import simps, trapz
 
-from src.tools.metrics.Fmeasure import Fmeasure
+from model.tools.metrics.Fmeasure import Fmeasure
 
 
 class Graphs:
@@ -52,6 +53,22 @@ class Graphs:
                 negativeCount += 1
         baselinePoints = positiveCount / (positiveCount + negativeCount)
 
+        concatList = list(zip(modelPointsRecall, modelPointsPrecision))
+        concatList.sort(key=lambda elem: elem[0])
+        unconcatList = list(zip(*concatList))
+        modelPointsRecall = list(unconcatList[0])
+        modelPointsPrecision = list(unconcatList[1])
+
+        # Compute and print the AUC
+        realPrecRecAucSimps = simps(modelPointsPrecision, modelPointsRecall)
+        baselinePrecRecAucSimps = simps([baselinePoints, baselinePoints], [self.thresholdStart, self.thresholdEnd])
+        realPrecRecAucTrapz = trapz(modelPointsPrecision, modelPointsRecall)
+        baselinePrecRecAucTrapz = trapz([baselinePoints, baselinePoints], [self.thresholdStart, self.thresholdEnd])
+        print("Real Precision-Recall AUC Simps : ", realPrecRecAucSimps)
+        print("Real Precision-Recall AUC Trapz : ", realPrecRecAucTrapz)
+        print("Baseline Precision-Recall AUC Simps : ", baselinePrecRecAucSimps)
+        print("Baseline Precision-Recall AUC Trapz : ", baselinePrecRecAucTrapz)
+
         #  Plot the graph and display it
         plt.plot(modelPointsRecall, modelPointsPrecision, marker=".", label="Model")
         plt.plot([self.thresholdStart, self.thresholdEnd], [baselinePoints, baselinePoints], linestyle="--", label="Baseline")
@@ -60,6 +77,7 @@ class Graphs:
         plt.title("Precision-Recall Curve")
         plt.gca().legend()
         plt.show()
+
 
 
     def precisionRecallCurve(self, fmeasureList):
@@ -101,12 +119,36 @@ class Graphs:
         baselineFmeasureList = self.calculateFmeasureList(baselineProb)
         baselinePointsRecall, baselinePointsFPRate = self.rocCurve(baselineFmeasureList)
 
+        # Sort points lists
+        concatListReal = list(zip(modelPointsRecall, modelPointsFPRate))
+        concatListReal.sort(key=lambda elem: elem[0])
+        unconcatListReal = list(zip(*concatListReal))
+        modelPointsRecall = list(unconcatListReal[0])
+        modelPointsFPRate = list(unconcatListReal[1])
+
+        concatListBaseline = list(zip(baselinePointsRecall, baselinePointsFPRate))
+        concatListBaseline.sort(key=lambda elem: elem[0])
+        unconcatListBaseline = list(zip(*concatListBaseline))
+        baselinePointsRecall = list(unconcatListBaseline[0])
+        baselinePointsFPRate = list(unconcatListBaseline[1])
+
+        #  Compute and print the AUC
+        realRocAucSimps = simps(modelPointsFPRate, modelPointsRecall)
+        baselineRocAucSimps = simps(baselinePointsFPRate, baselinePointsRecall)
+        realRocAucTrapz = trapz(modelPointsFPRate, modelPointsRecall)
+        baselineRocAucTrapz = trapz(baselinePointsFPRate, baselinePointsRecall)
+        print("Real ROC AUC Simps : ", realRocAucSimps)
+        print("Real ROC AUC Trapz : ", realRocAucTrapz)
+        print("Baseline ROC AUC Simps : ", baselineRocAucSimps)
+        print("Baseline ROC AUC Trapz : ", baselineRocAucTrapz)
+
         #  Plot the graph and display it
         plt.plot(modelPointsRecall, modelPointsFPRate, marker=".", label="Model")
         plt.plot(baselinePointsRecall, baselinePointsFPRate, linestyle="--", label="Baseline")
         plt.xlabel("False Positive Rate")
         plt.ylabel("Recall")
         plt.title("ROC Curve")
+        plt.text()
         plt.gca().legend()
         plt.show()
 

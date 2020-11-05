@@ -218,8 +218,7 @@ if __name__ == "__main__":
         desiredLinesPerBatch = 1
         slidingWindowRenewRate = 1
 
-        redteamFilePath = "/home_nfs/home_cerisarc/LANLData/redteamSplit/redteam_8"
-        # redteamFilePath = "/home/hubert/Documents/PAPUD/LANLData/redteamSplit/redteam_8"
+        redteamFilePath = pathAllData + "redteam_example"
 
         testAnomalyClassification(corpusName, pathAllData, anoClassModelFilename, desiredBatchSize, desiredLinesPerBatch, slidingWindowRenewRate, redteamFilePath)
 
